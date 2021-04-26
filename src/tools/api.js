@@ -7,13 +7,13 @@ const api = axios.create({
 
 export default {
   async state() {
-    const res = await api.get("/state");
+    const res = await api.get("/api/state");
     return res.data;
   },
   async card() {
-    await api.get("/card");
+    await api.get("/api/card");
   },
   async send(data) {
-    await api.post("/form-handler", data);
+    await api.post("/api/form-handler", data);
   }
 };
