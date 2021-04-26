@@ -10,9 +10,6 @@ export default {
     const res = await api.get("/api/state");
     return res.data;
   },
-  async card() {
-    await api.get("/api/card");
-  },
   async send(data) {
     await api.post("/api/form-handler", data);
   }

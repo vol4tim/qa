@@ -10,9 +10,6 @@
         <div v-else-if="state_no === 0" class="panel panel-default">
           <div class="panel-body text-center">
             приложите пропуск к сканеру чтобы начать сборку изделия.
-            <br />
-            <br />
-            <button class="btn btn-info" @click="card">приложить</button>
           </div>
         </div>
         <div v-else-if="state_no === 1" class="panel panel-default">
@@ -94,9 +91,6 @@ export default {
       } catch (error) {
         console.log(error);
       }
-    },
-    async card() {
-      await api.card();
     },
     async send() {
       const additional_info = {};
