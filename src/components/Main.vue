@@ -31,6 +31,14 @@
                 </div>
               </div>
               <div>
+                <div class="form-group">
+                  <label>Production stage</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    v-model="models[type].production_stage"
+                  />
+                </div>
                 <div
                   class="form-group"
                   v-for="(item, key) in models[type].fields"
@@ -98,8 +106,9 @@ export default {
         additional_info[field.key] = field.value;
       }
       const data = {
-        session_start_time: new Date().toLocaleString(),
+        session_start_time: Date.now(),
         product_type: this.models[this.type].name,
+        production_stage: this.models[this.type].production_stage,
         additional_info: additional_info
       };
       await api.send(data);
