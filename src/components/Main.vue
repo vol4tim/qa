@@ -108,8 +108,11 @@
 
 <script>
 import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 import api from "@/tools/api";
 import { MODELS, TIMEOUT } from "@/config";
+
+dayjs.extend(duration);
 
 export default {
   data() {
@@ -117,7 +120,7 @@ export default {
       state_no: null,
       type: 1,
       models: MODELS,
-      sec: 0,
+      sec: "00:00:00",
       interval: null
     };
   },
@@ -134,9 +137,13 @@ export default {
         const result = await api.state();
         this.state_no = result.state_no;
         if (old === 1 && this.state_no === 2) {
-          this.sec = 0;
+          this.sec = "00:00:00";
+          var startTime = dayjs();
           this.interval = setInterval(() => {
-            this.sec++;
+            const currentTime = dayjs();
+            this.sec = dayjs
+              .duration(currentTime.diff(startTime))
+              .format("HH:mm:ss");
           }, 1000);
         } else if (old === 2 && this.state_no === 3) {
           clearInterval(this.interval);
