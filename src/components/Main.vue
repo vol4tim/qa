@@ -74,6 +74,7 @@
 </template>
 
 <script>
+import dayjs from "dayjs";
 import api from "@/tools/api";
 import { MODELS, TIMEOUT } from "@/config";
 
@@ -106,7 +107,7 @@ export default {
         additional_info[field.key] = field.value;
       }
       const data = {
-        session_start_time: Date.now(),
+        session_start_time: dayjs().format("DD-MM-YYYY HH:mm:ss"),
         product_type: this.models[this.type].name,
         production_stage: this.models[this.type].production_stage,
         additional_info: additional_info
