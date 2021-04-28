@@ -14,3 +14,11 @@ export default {
   }
 };
 </script>
+
+<style>
+html {
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+</style>
