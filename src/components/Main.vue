@@ -33,54 +33,51 @@
           <div v-else-if="state_no === 1" class="panel panel-default">
             <div class="panel-body text-center">
               <h4>Ввод параметров изделия</h4>
-              <div class="text-left">
-                <div>
-                  <div class="form-group">
-                    <label>Модель</label>
-                    <select v-model="type" class="form-control">
-                      <option
-                        v-for="(item, key) in models"
-                        :value="key"
-                        :key="key"
-                      >
-                        {{ item.name }}
-                      </option>
-                    </select>
-                  </div>
-                </div>
-                <div>
-                  <div class="form-group">
-                    <label>Production stage</label>
-                    <select
-                      v-model="models[type].production_stage.value"
-                      class="form-control"
+              <div class="text-left" v-if="options && form">
+                <div class="form-group">
+                  <label>{{ options.product_type.field_full_name }}</label>
+                  <select v-model="form.product_type" class="form-control">
+                    <option
+                      v-for="(item, key) in options.product_type.options"
+                      :value="item"
+                      :key="key"
                     >
-                      <option
-                        v-for="(item, key) in models[type].production_stage
-                          .options"
-                        :value="item"
-                        :key="key"
-                      >
-                        {{ item }}
-                      </option>
-                    </select>
-                  </div>
-                  <div
-                    class="form-group"
-                    v-for="(item, key) in models[type].fields"
-                    :key="key"
+                      {{ item }}
+                    </option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>{{ options.production_stage.field_full_name }}</label>
+                  <select v-model="form.production_stage" class="form-control">
+                    <option
+                      v-for="(item, key) in options.production_stage.options"
+                      :value="item"
+                      :key="key"
+                    >
+                      {{ item }}
+                    </option>
+                  </select>
+                </div>
+                <div
+                  class="form-group"
+                  v-for="(item, key) in options.additional_info"
+                  :key="key"
+                >
+                  <label>
+                    {{ options.additional_info[key].field_full_name }}
+                  </label>
+                  <select
+                    v-model="form.additional_info[key]"
+                    class="form-control"
                   >
-                    <label>{{ item.label }}</label>
-                    <select v-model="item.value" class="form-control">
-                      <option
-                        v-for="(item, key) in item.options"
-                        :value="item"
-                        :key="key"
-                      >
-                        {{ item }}
-                      </option>
-                    </select>
-                  </div>
+                    <option
+                      v-for="(v, k) in options.additional_info[key].options"
+                      :value="v"
+                      :key="k"
+                    >
+                      {{ v }}
+                    </option>
+                  </select>
                 </div>
               </div>
               <br />
@@ -110,7 +107,7 @@
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import api from "@/tools/api";
-import { MODELS, TIMEOUT } from "@/config";
+import { TIMEOUT } from "@/config";
 
 dayjs.extend(duration);
 
@@ -118,19 +115,34 @@ export default {
   data() {
     return {
       state_no: null,
-      type: 1,
-      models: MODELS,
+      options: null,
+      form: null,
       sec: "00:00:00",
       interval: null
     };
   },
-  created() {
+  async created() {
     setInterval(() => {
       this.getState();
     }, TIMEOUT);
     this.getState();
+    this.getFormFields();
   },
   methods: {
+    async getFormFields() {
+      this.options = await api.options();
+      const form = {
+        product_type: this.options.product_type.options[0],
+        production_stage: this.options.production_stage.options[0],
+        additional_info: {}
+      };
+      for (const key in this.options.additional_info) {
+        form.additional_info[key] = this.options.additional_info[
+          key
+        ].options[0];
+      }
+      this.form = form;
+    },
     async getState() {
       try {
         const old = this.state_no;
@@ -154,13 +166,13 @@ export default {
     },
     async send() {
       const additional_info = {};
-      for (const field of this.models[this.type].fields) {
-        additional_info[field.key] = field.value;
+      for (const field in this.form.additional_info) {
+        additional_info[field] = this.form.additional_info[field];
       }
       const data = {
         session_start_time: dayjs().format("DD-MM-YYYY HH:mm:ss"),
-        product_type: this.models[this.type].name,
-        production_stage: this.models[this.type].production_stage.value,
+        product_type: this.form.product_type,
+        production_stage: this.form.production_stage,
         additional_info: additional_info
       };
       await api.send(data);
