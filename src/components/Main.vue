@@ -128,6 +128,23 @@ export default {
     this.getState();
     this.getFormFields();
   },
+  watch: {
+    state_no: function(value) {
+      if (value === 2) {
+        clearInterval(this.interval);
+        this.sec = "00:00:00";
+        const startTime = dayjs();
+        this.interval = setInterval(() => {
+          const currentTime = dayjs();
+          this.sec = dayjs
+            .duration(currentTime.diff(startTime))
+            .format("HH:mm:ss");
+        }, 1000);
+      } else if (value === 3) {
+        clearInterval(this.interval);
+      }
+    }
+  },
   methods: {
     async getFormFields() {
       this.options = await api.options();
@@ -145,21 +162,8 @@ export default {
     },
     async getState() {
       try {
-        const old = this.state_no;
         const result = await api.state();
         this.state_no = result.state_no;
-        if (old === 1 && this.state_no === 2) {
-          this.sec = "00:00:00";
-          var startTime = dayjs();
-          this.interval = setInterval(() => {
-            const currentTime = dayjs();
-            this.sec = dayjs
-              .duration(currentTime.diff(startTime))
-              .format("HH:mm:ss");
-          }, 1000);
-        } else if (old === 2 && this.state_no === 3) {
-          clearInterval(this.interval);
-        }
       } catch (error) {
         console.log(error);
       }
