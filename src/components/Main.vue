@@ -1,8 +1,8 @@
 <template>
   <div class="container-fluid">
     <div class="row" v-if="state_no !== 0">
-      <img src="https://via.placeholder.com/50" class="m-2" />
-      <img src="https://via.placeholder.com/50" class="m-2" />
+      <img src="../image/mvas.png" class="m-2" style="width: 50px;" />
+      <img src="../image/strelka.png" class="m-2" style="width: 50px;" />
     </div>
     <div class="container">
       <div class="row">
@@ -21,9 +21,21 @@
               </div>
               <hr />
               <div>
-                <img src="https://via.placeholder.com/150" class="m-2" />
-                <img src="https://via.placeholder.com/150" class="m-2" />
-                <img src="https://via.placeholder.com/150" class="m-2" />
+                <img
+                  src="../image/mvas.png"
+                  class="mx-5"
+                  style="width: 130px;"
+                />
+                <img
+                  src="../image/strelka.png"
+                  class="mx-5"
+                  style="width: 150px;"
+                />
+                <img
+                  src="../image/robonomics.png"
+                  class="mx-5"
+                  style="width: 180px;"
+                />
               </div>
               <div class="mt-3">
                 Приложите пропуск к сканеру чтобы начать сборку изделия.
