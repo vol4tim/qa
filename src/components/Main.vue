@@ -1,18 +1,18 @@
 <template>
   <div class="container-fluid">
     <div class="row" v-if="state_no !== 0">
-      <img src="../image/mvas.png" class="m-2" style="width: 50px;" />
-      <img src="../image/strelka.png" class="m-2" style="width: 50px;" />
+      <img src="/static/logo_mvas.png" class="m-2" style="width: 50px;" />
+      <img src="/static/logo_geoskan.png" class="m-2" style="width: 50px;" />
     </div>
     <div class="container">
       <div class="row">
-        <div class="col-md">
+        <div class="col-md my-5">
           <div v-if="state_no === null" class="panel panel-default">
             <div class="panel-body text-center">
               Загрузка
             </div>
           </div>
-          <div v-else-if="state_no === 0" class="panel panel-default mt-5">
+          <div v-else-if="state_no === 0" class="panel panel-default">
             <div class="panel-body text-center">
               <div class="text-center">
                 <h3>
@@ -22,17 +22,17 @@
               <hr />
               <div>
                 <img
-                  src="../image/mvas.png"
+                  src="/static/logo_mvas.png"
                   class="mx-5"
                   style="width: 130px;"
                 />
                 <img
-                  src="../image/strelka.png"
+                  src="/static/logo_robonomics.png"
                   class="mx-5"
                   style="width: 150px;"
                 />
                 <img
-                  src="../image/robonomics.png"
+                  src="/static/logo_geoskan.png"
                   class="mx-5"
                   style="width: 180px;"
                 />
@@ -92,9 +92,31 @@
                   </select>
                 </div>
               </div>
+              <div class="container my-2">
+                <div class="row">
+                  <div v-for="(item, id) in modules" :key="id" class="col-md-3">
+                    <div
+                      class="p-2 my-2"
+                      :class="{ active: item.select }"
+                      style="cursor:pointer"
+                      @click="set(id)"
+                    >
+                      <img
+                        class="img-thumbnail"
+                        :src="`/static/images/${item.module_image}`"
+                        style="width: 150px;"
+                      />
+                      <div class="mt-2">{{ item.module_name }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <br />
               <br />
               <button class="btn btn-info" @click="send">отправить</button>
+              <button class="btn btn-danger ml-2" @click="cancel(0)">
+                Отмена
+              </button>
             </div>
           </div>
           <div v-else-if="state_no === 2" class="panel panel-default">
@@ -102,6 +124,11 @@
               <h4>Идет запись сборки</h4>
               <div class="text-info display-3">{{ sec }}</div>
               <div>Для завершения сборки нужно приложить пропуск</div>
+              <div>
+                <button class="btn btn-danger mt-2" @click="cancel(3)">
+                  Завершить сборку
+                </button>
+              </div>
             </div>
           </div>
           <div v-else-if="state_no === 3" class="panel panel-default">
@@ -130,7 +157,8 @@ export default {
       options: null,
       form: null,
       sec: "00:00:00",
-      interval: null
+      interval: null,
+      modules: {}
     };
   },
   async created() {
@@ -170,6 +198,15 @@ export default {
           key
         ].options[0];
       }
+      const modules = await api.modules();
+      const m = {};
+      modules.forEach((item, id) => {
+        m[id] = {
+          ...item,
+          select: false
+        };
+      });
+      this.modules = m;
       this.form = form;
     },
     async getState() {
@@ -185,6 +222,13 @@ export default {
       for (const field in this.form.additional_info) {
         additional_info[field] = this.form.additional_info[field];
       }
+      additional_info["additional_modules"] = [];
+      for (const id in this.modules) {
+        const module = this.modules[id];
+        if (module.select) {
+          additional_info["additional_modules"].push(module.module_name);
+        }
+      }
       const data = {
         session_start_time: dayjs().format("DD-MM-YYYY HH:mm:ss"),
         product_type: this.form.product_type,
@@ -192,7 +236,22 @@ export default {
         additional_info: additional_info
       };
       await api.send(data);
+    },
+    async cancel(state) {
+      await api.update({
+        change_state_to: state,
+        priority: 1
+      });
+    },
+    set(id) {
+      this.modules[id].select = !this.modules[id].select;
     }
   }
 };
 </script>
+
+<style scoped>
+.active {
+  outline: 2px solid #38caff;
+}
+</style>

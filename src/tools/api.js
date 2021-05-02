@@ -14,7 +14,14 @@ export default {
     const res = await api.get("/api/form-options");
     return res.data;
   },
+  async modules() {
+    const res = await api.get("/static/additional_modules.json");
+    return res.data;
+  },
   async send(data) {
     await api.post("/api/form-handler", data);
+  },
+  async update(data) {
+    await api.post("/api/state-update", data);
   }
 };
