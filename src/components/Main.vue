@@ -280,7 +280,7 @@ export default {
       });
     },
     set(id) {
-      this.modules[id].select = !this.modules[id].select;
+      this.$set(this.modules[id], "select", !this.modules[id].select);
     },
     next() {
       this.step = 2;
