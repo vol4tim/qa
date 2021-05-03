@@ -98,12 +98,12 @@
                     </select>
                   </div>
                 </div>
-                <div v-if="step === 2" class="container my-2">
+                <div v-if="step === 2" class="container my-2 text-center">
                   <div class="row">
                     <div
                       v-for="(item, id) in modules"
                       :key="id"
-                      class="col-md-3"
+                      class="col-md-2"
                     >
                       <div
                         class="p-2 my-2"
@@ -114,9 +114,11 @@
                         <img
                           class="img-thumbnail"
                           :src="`/static/images/${item.module_image}`"
-                          style="width: 150px;"
+                          style="width: 105px;"
                         />
-                        <div class="mt-2">{{ item.module_name }}</div>
+                        <div class="mt-2 label-card">
+                          {{ item.module_name }}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -247,17 +249,20 @@ export default {
       }
     },
     async send() {
-      const additional_info = {};
-      for (const field in this.form.additional_info) {
-        additional_info[field] = this.form.additional_info[field];
-      }
-      additional_info["additional_modules"] = [];
+      const additional_modules = [];
       for (const id in this.modules) {
         const module = this.modules[id];
         if (module.select) {
-          additional_info["additional_modules"].push(module.module_name);
+          additional_modules.push(module.module_name);
         }
       }
+      const additional_info = {};
+      for (const field in this.form.additional_info) {
+        additional_info[
+          this.options.additional_info[field].field_full_name
+        ] = this.form.additional_info[field];
+      }
+      additional_info["Дополнительные модули"] = additional_modules;
       const data = {
         session_start_time: dayjs().format("DD-MM-YYYY HH:mm:ss"),
         product_type: this.form.product_type,
@@ -288,5 +293,8 @@ export default {
 <style scoped>
 .active {
   outline: 2px solid #38caff;
+}
+.label-card {
+  font-size: 0.8rem;
 }
 </style>
