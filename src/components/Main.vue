@@ -46,75 +46,99 @@
             <div class="panel-body text-center">
               <h4>Ввод параметров изделия</h4>
               <div class="text-left" v-if="options && form">
-                <div class="form-group">
-                  <label>{{ options.product_type.field_full_name }}</label>
-                  <select v-model="form.product_type" class="form-control">
-                    <option
-                      v-for="(item, key) in options.product_type.options"
-                      :value="item"
-                      :key="key"
+                <div v-if="step === 1">
+                  <div class="form-group">
+                    <label>{{ options.product_type.field_full_name }}</label>
+                    <select v-model="form.product_type" class="form-control">
+                      <option
+                        v-for="(item, key) in options.product_type.options"
+                        :value="item"
+                        :key="key"
+                      >
+                        {{ item }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>{{
+                      options.production_stage.field_full_name
+                    }}</label>
+                    <select
+                      v-model="form.production_stage"
+                      class="form-control"
                     >
-                      {{ item }}
-                    </option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label>{{ options.production_stage.field_full_name }}</label>
-                  <select v-model="form.production_stage" class="form-control">
-                    <option
-                      v-for="(item, key) in options.production_stage.options"
-                      :value="item"
-                      :key="key"
-                    >
-                      {{ item }}
-                    </option>
-                  </select>
-                </div>
-                <div
-                  class="form-group"
-                  v-for="(item, key) in options.additional_info"
-                  :key="key"
-                >
-                  <label>
-                    {{ options.additional_info[key].field_full_name }}
-                  </label>
-                  <select
-                    v-model="form.additional_info[key]"
-                    class="form-control"
+                      <option
+                        v-for="(item, key) in options.production_stage.options"
+                        :value="item"
+                        :key="key"
+                      >
+                        {{ item }}
+                      </option>
+                    </select>
+                  </div>
+                  <div
+                    class="form-group"
+                    v-for="(item, key) in options.additional_info"
+                    :key="key"
                   >
-                    <option
-                      v-for="(v, k) in options.additional_info[key].options"
-                      :value="v"
-                      :key="k"
+                    <label>
+                      {{ options.additional_info[key].field_full_name }}
+                    </label>
+                    <select
+                      v-model="form.additional_info[key]"
+                      class="form-control"
                     >
-                      {{ v }}
-                    </option>
-                  </select>
+                      <option
+                        v-for="(v, k) in options.additional_info[key].options"
+                        :value="v"
+                        :key="k"
+                      >
+                        {{ v }}
+                      </option>
+                    </select>
+                  </div>
                 </div>
-              </div>
-              <div class="container my-2">
-                <div class="row">
-                  <div v-for="(item, id) in modules" :key="id" class="col-md-3">
+                <div v-if="step === 2" class="container my-2">
+                  <div class="row">
                     <div
-                      class="p-2 my-2"
-                      :class="{ active: item.select }"
-                      style="cursor:pointer"
-                      @click="set(id)"
+                      v-for="(item, id) in modules"
+                      :key="id"
+                      class="col-md-3"
                     >
-                      <img
-                        class="img-thumbnail"
-                        :src="`/static/images/${item.module_image}`"
-                        style="width: 150px;"
-                      />
-                      <div class="mt-2">{{ item.module_name }}</div>
+                      <div
+                        class="p-2 my-2"
+                        :class="{ active: item.select }"
+                        style="cursor:pointer"
+                        @click="set(id)"
+                      >
+                        <img
+                          class="img-thumbnail"
+                          :src="`/static/images/${item.module_image}`"
+                          style="width: 150px;"
+                        />
+                        <div class="mt-2">{{ item.module_name }}</div>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
+
               <br />
               <br />
-              <button class="btn btn-info" @click="send">отправить</button>
-              <button class="btn btn-danger ml-2" @click="cancel(0)">
+              <button v-if="step === 2" class="btn btn-info mr-2" @click="send">
+                Отправить
+              </button>
+              <button v-if="step === 1" class="btn btn-info mr-2" @click="next">
+                Продолжить
+              </button>
+              <button
+                v-if="step === 2"
+                class="btn btn-secondary mr-2"
+                @click="prev"
+              >
+                Назад
+              </button>
+              <button class="btn btn-danger" @click="cancel(0)">
                 Отмена
               </button>
             </div>
@@ -123,7 +147,6 @@
             <div class="panel-body text-center">
               <h4>Идет запись сборки</h4>
               <div class="text-info display-3">{{ sec }}</div>
-              <div>Для завершения сборки нужно приложить пропуск</div>
               <div>
                 <button class="btn btn-danger mt-2" @click="cancel(3)">
                   Завершить сборку
@@ -156,6 +179,7 @@ export default {
       state_no: null,
       options: null,
       form: null,
+      step: 1,
       sec: "00:00:00",
       interval: null,
       modules: {}
@@ -170,7 +194,12 @@ export default {
   },
   watch: {
     state_no: function(value) {
-      if (value === 2) {
+      if (value === 1) {
+        this.step = 1;
+        for (const id in this.modules) {
+          this.modules[id].select = false;
+        }
+      } else if (value === 2) {
         clearInterval(this.interval);
         this.sec = "00:00:00";
         const startTime = dayjs();
@@ -245,6 +274,12 @@ export default {
     },
     set(id) {
       this.modules[id].select = !this.modules[id].select;
+    },
+    next() {
+      this.step = 2;
+    },
+    prev() {
+      this.step = 1;
     }
   }
 };
