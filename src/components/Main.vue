@@ -262,7 +262,9 @@ export default {
           this.options.additional_info[field].field_full_name
         ] = this.form.additional_info[field];
       }
-      additional_info["Дополнительные модули"] = additional_modules;
+      if (additional_modules.length > 0) {
+        additional_info["Дополнительные модули"] = additional_modules;
+      }
       const data = {
         session_start_time: dayjs().format("DD-MM-YYYY HH:mm:ss"),
         product_type: this.form.product_type,
